@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Katamba James — Full-Stack Developer</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<script>
+    if (typeof tailwind !== 'undefined') {
+    tailwind.config = { darkMode: 'class' }
+  }
+</script>
+<style>
+  body{font-family:'Space Grotesk',sans-serif}
+  .mono{font-family:'JetBrains Mono',monospace}
+</style>
+</head>
+<body class="bg-[#0a0a0a] text-zinc-100 dark:bg-[#fcfcf9] dark:text-zinc-900 transition-colors duration-300" id="top">
+
+<div id="header"></div>
+<div id="hero"></div>
+<div id="about"></div>
+<div id="skills"></div>
+<div id="projects"></div>
+<div id="contact"></div>
+<div id="modal"></div>
+
+<script src="main.js"></script>
+<script>
+  async function load(id, file) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const res = await fetch(file);
+    el.innerHTML = await res.text();
+    // Re-run scripts that might be in loaded content? They won't execute via innerHTML
+  }
+  
+  async function init() {
+    await load('header', 'header.html');
+    await load('hero', 'hero.html');
+    await load('about', 'about.html');
+    await load('skills', 'skills.html');
+    await load('projects', 'projects.html');
+    await load('contact', 'contact.html');
+    await load('modal', 'modal.html');
+    // Re-attach event listeners after loading
+    if (typeof attachEvents === 'function') {
+      attachEvents();
+    } else {
+      // Fallback: re-run main.js logic
+      const script = document.createElement('script');
+      script.src = 'main.js';
+      document.body.appendChild(script);
+    }
+  }
+  
+  function attachEvents() {
+    // Mobile menu
+    const menuBtn = document.getElementById('menuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    if (menuBtn && mobileMenu) {
+      menuBtn.onclick = () => mobileMenu.classList.toggle('hidden');
+      document.querySelectorAll('#mobileMenu a').forEach(a => a.onclick = () => mobileMenu.classList.add('hidden'));
+    }
+    
+    // Theme
+    const themeBtn = document.getElementById('themeBtn');
+    const html = document.documentElement;
+    if (localStorage.theme === 'light'){ html.classList.remove('dark'); document.body.classList.add('dark'); }
+    if (themeBtn) {
+      themeBtn.onclick = () => {
+        document.body.classList.toggle('dark');
+        html.classList.toggle('dark');
+        localStorage.theme = document.body.classList.contains('dark') ? 'light' : 'dark';
+      };
+    }
+    
+    // Modal
+    const modal = document.getElementById('modal');
+    document.querySelectorAll('.project-card').forEach(card => {
+      card.onclick = () => {
+        document.getElementById('mTitle').textContent = card.dataset.title;
+        document.getElementById('mDesc').textContent = card.dataset.desc;
+        document.getElementById('mTech').textContent = 'Stack: ' + card.dataset.tech;
+        document.getElementById('mLink').href = card.dataset.link;
+        modal.classList.remove('hidden');
+      };
+    });
+    const closeBtn = document.getElementById('closeModal');
+    const bg = document.getElementById('modalBg');
+    if (closeBtn) closeBtn.onclick = () => modal.classList.add('hidden');
+    if (bg) bg.onclick = () => modal.classList.add('hidden');
+  }
+  
+  init();
+</script>
+</body>
+</html>
